@@ -10,6 +10,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 
 /**
  * 全局异常处理
+ * 拦截类上加这些注解的controller
  */
 @ControllerAdvice(annotations = {RestController.class, Controller.class})
 @ResponseBody
@@ -17,31 +18,18 @@ import java.sql.SQLIntegrityConstraintViolationException;
 public class GlobalExceptionHandler {
 
     /**
-     * 异常处理方法
+     * 异常处理方法（SQL）
      * @return
      */
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public R<String> exceptionHandler(SQLIntegrityConstraintViolationException ex){
         log.error(ex.getMessage());
-
-        if(ex.getMessage().contains("Duplicate entry")){
-            String[] split = ex.getMessage().split(" ");
-            String msg = split[2] + "已存在";
+        if(ex.getMessage().contains("Duplicate entry")){//违反了唯一约束
+            String[] split=ex.getMessage().split("");
+            String msg=split[2]+"已存在";
             return R.error(msg);
         }
-
         return R.error("未知错误");
-    }
-
-    /**
-     * 异常处理方法
-     * @return
-     */
-    @ExceptionHandler(CustomException.class)
-    public R<String> exceptionHandler(CustomException ex){
-        log.error(ex.getMessage());
-
-        return R.error(ex.getMessage());
     }
 
 }

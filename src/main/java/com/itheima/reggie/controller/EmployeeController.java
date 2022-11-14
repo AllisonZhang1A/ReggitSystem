@@ -84,45 +84,42 @@ public class EmployeeController {
         //设置初始密码123456，需要进行md5加密处理
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
 
-        //employee.setCreateTime(LocalDateTime.now());
-        //employee.setUpdateTime(LocalDateTime.now());
-
+        employee.setCreateTime(LocalDateTime.now());//当前系统时间
+        employee.setUpdateTime(LocalDateTime.now());//当前更新时间
         //获得当前登录用户的id
-        //Long empId = (Long) request.getSession().getAttribute("employee");
+        Long empId=(Long) request.getSession().getAttribute("employee");
+        employee.setCreateUser(empId);
 
-        //employee.setCreateUser(empId);
-        //employee.setUpdateUser(empId);
-
+        employee.setUpdateUser(empId);
+        //service
         employeeService.save(employee);
-
         return R.success("新增员工成功");
     }
 
     /**
      * 员工信息分页查询
-     * @param page
-     * @param pageSize
-     * @param name
+     * @param page 默认是1
+     * @param pageSize 默认是10
+     * @param name 查询名字
      * @return
      */
     @GetMapping("/page")
     public R<Page> page(int page,int pageSize,String name){
         log.info("page = {},pageSize = {},name = {}" ,page,pageSize,name);
-
         //构造分页构造器
-        Page pageInfo = new Page(page,pageSize);
-
+        Page pageInfo=new Page(page,pageSize);//查第一页，查十条数据
         //构造条件构造器
-        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper();
-        //添加过滤条件
-        queryWrapper.like(StringUtils.isNotEmpty(name),Employee::getName,name);
-        //添加排序条件
+        LambdaQueryWrapper<Employee> queryWrapper=new LambdaQueryWrapper();
+        //添加一个过滤条件
+        queryWrapper.like(StringUtils.isNotEmpty(name),Employee::getName,name);//name不为空的话才会添加条件
+        //添加一个排序条件
         queryWrapper.orderByDesc(Employee::getUpdateTime);
 
-        //执行查询
+        //执行查询，在内部就已经进行封装了
         employeeService.page(pageInfo,queryWrapper);
 
         return R.success(pageInfo);
+
     }
 
     /**
